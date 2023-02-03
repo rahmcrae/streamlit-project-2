@@ -1,5 +1,4 @@
 import streamlit as st
-from pymongo import MongoClient
 import requests
 from mailchimp_variables import *
 from mongdb_variables import * 
