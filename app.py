@@ -1,35 +1,54 @@
 import streamlit as st
+from pymongo import MongoClient
+import requests
+from mailchimp_variables import *
 
-def page_1():
-    st.title("This is page 1")
-    return
-def page_2():
-    st.title("This is page 2")
-    return
-def page_3():
-    st.title("This is page 3")
-    return
-def page_4():
-    st.title("This is page 4")
-    return
-def page_5():
-    st.title("This is page 5")
-    return
-def navigation_menu():
-    menu = ["Page 1", "Page 2", "Page 3", "Page 4", "Page 5",]
-    selection = st.sidebar.selectbox("Select a page", menu)
-    if selection == "Page 1":
-        page_1()
-    elif selection == "Page 2":
-        page_2()
-    elif selection == "Page 3":
-        page_3()
-    elif selection == "Page 4":
-        page_4()
-    elif selection == "Page 5":
-        page_5()            
-        return
-    
+client = MongoClient("mongodb://localhost:27017/")
+db = client["forms"]
+collection = db["subscibers"]
+
+def form():
+    first_name = st.text_input("Enter your first name:")
+    last_name = st.text_input("Enter your last name:")
+    email = st.text_input("Enter your email:")
+    password = st.text_input("Enter your password:", type='password')
+    remember_me = st.checkbox("Remember me")
+
+    if st.button("Submit"):        
+        st.write("First Name: ", first_name)
+        st.write("Last Name: ", last_name)
+        st.write("Email: ", email)
+        st.write("Password: ", password)
+        st.write("Remember me: ", remember_me)
+        inputs = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "password": password,
+            "remember_me": remember_me
+        }        
+                
+        headers = {
+            "Authorization": f"apikey {api_key}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "email_address": email,
+            "merge_fields": {
+            "FNAME": first_name,
+            "LNAME": last_name
+},
+            "status": "subscribed"
+        }
+        response = requests.post(url, headers=headers, json=data)
+        
+        # this logic will only submit to database if status code is successful
+        if response.status_code == 200:
+            collection.insert_one(inputs)
+            st.success("Form submitted successfully - Thanks for subscribing!")
+        if response.status_code == 400:
+            st.error("Form not submitted - Email already exists")
+            return           
+
 if __name__ == "__main__":
-    navigation_menu()
-
+    form()
