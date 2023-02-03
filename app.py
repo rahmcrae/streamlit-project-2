@@ -5,7 +5,7 @@ from mailchimp_variables import *
 
 client = MongoClient("mongodb://localhost:27017/")
 db = client["forms"]
-collection = db["subscibers"]
+collection = db["subscribers"]
 
 def form():
     first_name = st.text_input("Enter your first name:")
@@ -45,8 +45,8 @@ def form():
         # this logic will only submit to database if status code is successful
         if response.status_code == 200:
             collection.insert_one(inputs)
-            st.success("Form submitted successfully - Thanks for subscribing!")
-        if response.status_code == 400:
+            st.success("Form submitted successfully - Thanks for subscribing!")            
+        if response.status_code == 400 or response.status_code == 404:
             st.error("Form not submitted - Email already exists")
             return           
 
