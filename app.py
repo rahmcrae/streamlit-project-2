@@ -2,10 +2,7 @@ import streamlit as st
 from pymongo import MongoClient
 import requests
 from mailchimp_variables import *
-
-client = MongoClient("mongodb://localhost:27017/")
-db = client["forms"]
-collection = db["subscribers"]
+from mongdb_variables import * 
 
 def form():
     first_name = st.text_input("Enter your first name:")
@@ -28,16 +25,12 @@ def form():
             "remember_me": remember_me
         }        
                 
-        headers = {
-            "Authorization": f"apikey {api_key}",
-            "Content-Type": "application/json"
-        }
         data = {
             "email_address": email,
             "merge_fields": {
             "FNAME": first_name,
             "LNAME": last_name
-},
+            },
             "status": "subscribed"
         }
         response = requests.post(url, headers=headers, json=data)
